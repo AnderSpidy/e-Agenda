@@ -13,7 +13,7 @@ namespace e_Agenda.ConsoleApp.ModuloContato
         private readonly string email;
         private readonly string telefone;
         private readonly string empresa;
-        private readonly string cargo;
+        internal readonly string cargo;
 
         public Contato(string nome, string email, string telefone, string empresa, string cargo)
         {

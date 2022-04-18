@@ -10,7 +10,7 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
     public class Item 
     {
         public int id;
-        private string descricao;
+        internal string descricao;
         internal bool pendencia;
 
         public Item(int id,string descricao)
@@ -19,13 +19,21 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
             this.descricao = descricao;
         }
 
-        public string Descricao => descricao;
-
         public override string ToString()
         {
+            string pendenciaString;
+            if(pendencia == true)
+            {
+                pendenciaString = "CONCLUÍDO";
+            }
+            else
+            {
+                pendenciaString = "PENDENTE";
+            }
             return "Id:" + id + Environment.NewLine +
-                "Descrição:" + Descricao + Environment.NewLine +
-                "Status:" + pendencia + Environment.NewLine;
+                "Descrição:" + descricao + Environment.NewLine +
+                "Status:" + pendenciaString + Environment.NewLine;
         }
+
     }
 }

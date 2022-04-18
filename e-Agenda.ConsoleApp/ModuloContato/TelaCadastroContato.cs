@@ -124,19 +124,42 @@ namespace e_Agenda.ConsoleApp.ModuloContato
             if (tipoVisualizacao == "Tela")
                 MostrarTitulo("Visualização de Funcionários");
 
-            List<Contato> contatos = repositorioContato.SelecionarTodos();
-
-            if (contatos.Count == 0)
+            Console.WriteLine("1-Deseja visualizar todos os contatos:");
+            Console.WriteLine("2-Deseja visualizar contatos filtrados por cargo:");
+            Console.Write("\n-");
+            string opcao = Console.ReadLine();
+            List<Contato> contatos = null;
+            switch (opcao)
             {
-                notificador.ApresentarMensagem("Nenhum funcionário disponível.", TipoMensagem.Atencao);
-                return false;
+                case "1":
+                    contatos = repositorioContato.SelecionarTodos();
+                    if (contatos.Count == 0)
+                    {
+                        notificador.ApresentarMensagem("Nenhum funcionário disponível.", TipoMensagem.Atencao);
+                        break;
+                    }
+                    foreach (Contato contato in contatos)
+                        Console.WriteLine(contato.ToString());
+                    break;
+                    
+                case "2":
+                    Console.WriteLine("Digite o cargo que esta querendo filtrar:");
+                    string cargo = Console.ReadLine();
+                    contatos = repositorioContato.Filtrar(x => x.cargo == cargo);
+                    if (contatos.Count != 0)
+                    {
+                        foreach (Contato contato in contatos)
+                            Console.WriteLine(contato.ToString());
+                        break;
+                       
+                    }
+                    else
+                    {
+                        notificador.ApresentarMensagem("Não existe nenhum contato cadastrado come esse cargo", TipoMensagem.Atencao);
+                        break;
+                    }
             }
-
-            foreach (Contato contato in contatos)
-                Console.WriteLine(contato.ToString());
-
             Console.ReadLine();
-
             return true;
         }
     }

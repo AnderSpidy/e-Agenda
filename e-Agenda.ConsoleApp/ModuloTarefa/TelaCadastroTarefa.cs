@@ -36,11 +36,13 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
         #region São os metodos para "montar" uma tarefa.(Tarefa = Itens + Prioridade)
         private Tarefa ObterTarefa()
         {
+            
             Console.WriteLine("Digite o Titulo da tarefa:");
             string titulo = Console.ReadLine();
             Prioridade prioridade = ObterPrioridade();
             List<Item> itens = ObterItens();
             Tarefa novaTarefa = new Tarefa(titulo, prioridade, itens);
+            novaTarefa.dataDeCriacao = DateTime.Now;
             
             return novaTarefa;
         }
@@ -85,9 +87,15 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
 
             int numeroTarefa = ObterNumeroRegistro();
 
+            //guardando a data de criaçao nessa variavel
+            DateTime dataInicio = repositorioTarefa.SelecionarRegistro(numeroTarefa).dataDeCriacao;
+
             Tarefa tarefaAtualizada = ObterTarefa();
 
             bool conseguiuEditar = repositorioTarefa.Editar(numeroTarefa, tarefaAtualizada);
+
+            //coloco a data novamente na entidade
+            repositorioTarefa.SelecionarRegistro(numeroTarefa).dataDeCriacao = dataInicio;
 
             if (!conseguiuEditar)
                 notificador.ApresentarMensagem("Não foi possível editar.", TipoMensagem.Erro);
@@ -140,35 +148,55 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
 
         public bool VisualizarRegistros(string tipoVisualizacao)
         {
-            if (tipoVisualizacao == "Tela")
-                MostrarTitulo("Visualização de Tarefas Cadastradas");
+            if (tipoVisualizacao == "Tela") {
+                MostrarTitulo("Visualização de Todas as Tarefas Cadastradas");
 
-            Console.WriteLine("1 - Deseja ver Tarefas Pendetes");
-            Console.WriteLine("2 - Deseja ver Tarefas Completas");
-            Console.WriteLine();
-            Console.Write("- ");
-            string opcao = Console.ReadLine();
-            List<Tarefa> tarefas = null;
-            switch (opcao)
-            {
-                case "1":
-                    tarefas = repositorioTarefa.Filtrar(x => x.AjustePercentual() < 95);
-                    break;
-                case "2":
-                    tarefas = repositorioTarefa.Filtrar(x => x.AjustePercentual() >= 95);
-                    break;
+                Console.WriteLine("1 - Deseja ver Tarefas Pendetes");
+                Console.WriteLine("2 - Deseja ver Tarefas Completas");
+                Console.WriteLine();
+                Console.Write("- ");
+                string opcao = Console.ReadLine();
+                List<Tarefa> tarefas = null;
+                switch (opcao)
+                {
+                    case "1":
+                        tarefas = repositorioTarefa.Filtrar(x => x.AjustePercentual() < 95);
+                        break;
+                    case "2":
+                        tarefas = repositorioTarefa.Filtrar(x => x.AjustePercentual() >= 95);
+                        break;
+                }
+
+                if (tarefas.Count == 0)
+                {
+                    notificador.ApresentarMensagem("Nenhuma tarefa cadastrada", TipoMensagem.Atencao);
+                    return false;
+                }
+                foreach (Tarefa tarefa in tarefas)
+                {
+                    if (tarefa.prioridade.categoria == "Alta")
+                        Console.WriteLine(tarefa.ToString());
+                }
+                foreach (Tarefa tarefa in tarefas)
+                {
+                    if (tarefa.prioridade.categoria == "Normal")
+                        Console.WriteLine(tarefa.ToString());
+                }
+                foreach (Tarefa tarefa in tarefas)
+                {
+                    if (tarefa.prioridade.categoria == "Baixa")
+                        Console.WriteLine(tarefa.ToString());
+                }
+                
             }
 
-            if (tarefas.Count == 0)
+            if (tipoVisualizacao == "Pesquisando") {
+                List<Tarefa> tarefas = repositorioTarefa.SelecionarTodos();
+
+                foreach (Tarefa tarefa in tarefas)
             {
-                notificador.ApresentarMensagem("Nenhuma tarefa cadastrada", TipoMensagem.Atencao);
-                return false;
-            }
-           
-            foreach (Tarefa tarefa in tarefas)
-            {
-                if(tarefa.prioridade.categoria == "Alta")
-                Console.WriteLine(tarefa.ToString());
+                if (tarefa.prioridade.categoria == "Alta")
+                    Console.WriteLine(tarefa.ToString());
             }
             foreach (Tarefa tarefa in tarefas)
             {
@@ -180,7 +208,7 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
                 if (tarefa.prioridade.categoria == "Baixa")
                     Console.WriteLine(tarefa.ToString());
             }
-
+        }
             Console.ReadLine();
 
             return true;
@@ -206,9 +234,19 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
             Console.WriteLine("ITENS:\n");
             foreach (Item item in tarefas[opcaoTarefa].itens)
             {
-                Console.WriteLine("Id:" + item.id + Environment.NewLine +
-                "Descrição:" + item.Descricao + Environment.NewLine +
-                "Status:" + item.pendencia + Environment.NewLine);
+                string pendenciaString;
+                if (item.pendencia == true)
+                {
+                    pendenciaString = "CONCLUÍDO";
+                }
+                else
+                {
+                    pendenciaString = "PENDENTE";
+                }
+                Console.WriteLine( "Id:" + item.id + Environment.NewLine +
+                    "Descrição:" + item.descricao + Environment.NewLine +
+                    "Status: " + pendenciaString + Environment.NewLine);
+                //item.ToString(); PERGUNTAR PARA O TIAGO, O PORQUE NAO ESTA FUNCIONANDO O TOSTRING DO ITEM
             }
             Console.WriteLine("Digite o Id do item que foi concluido:");
             int opcaoItemConcluido = Convert.ToInt32(Console.ReadLine())-1;

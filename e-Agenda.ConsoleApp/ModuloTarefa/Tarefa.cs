@@ -11,31 +11,53 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
     {
         private readonly string titulo;
         internal readonly Prioridade prioridade;
-        private readonly DateTime dataDeCriacao;
+        internal DateTime dataDeCriacao;
         internal readonly List<Item> itens;
 
         internal int percentualPorItem;
         internal int percentualDeConclusao;
         private DateTime dataDeConclusao;
 
+       
+        public string DataDeConclusao
+        {
+            get { 
+                if(dataDeConclusao == DateTime.MinValue)
+                {
+                    return "TAREFA NÃO CONCLUIDA";
+                }
+                else
+                {
+                    return "CONCLUIDA: " + dataDeConclusao;
+                }
+               
+            }
+            
+        }
+
         public Tarefa(string titulo, Prioridade prioridade,List<Item> itens)
         {
             this.titulo = titulo;
             this.prioridade = prioridade;
             this.itens = itens;
-            dataDeCriacao = DateTime.Now;
             percentualPorItem = 100/itens.Count();
         }
         public int AjustePercentual()
         {
             percentualDeConclusao = 0;
-
+            int verificaConclusao=0;
             foreach (Item item in itens)
             {
                 if (item.pendencia == true)
                 {
+                    verificaConclusao++;
                     percentualDeConclusao += percentualPorItem;
                 }
+            }
+            if (verificaConclusao == itens.Count)
+            {
+                percentualDeConclusao = 100;
+                dataDeConclusao = DateTime.Now;
             }
             return percentualDeConclusao;
         }
@@ -46,7 +68,8 @@ namespace e_Agenda.ConsoleApp.ModuloTarefa
                 "Titulo: " + titulo + Environment.NewLine +
                 prioridade + Environment.NewLine +
                 "Data de Criação: " + dataDeCriacao + Environment.NewLine +
-                "Percentual de Conclusao: " + AjustePercentual() + "%" + Environment.NewLine;
+                "Percentual de Conclusao: " + AjustePercentual() + "%" + Environment.NewLine + 
+                "Data de Conclusão: " + DataDeConclusao + Environment.NewLine;
         }
     }
 }
